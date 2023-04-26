@@ -1,5 +1,5 @@
-#ifndef HEAD_H
-#define HEAD_H
+#ifndef _SHELL_H_
+#define _SHELL_H_
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -42,7 +42,7 @@ typedef struct liststr
 	char *str;
 	int num;
 	struct liststr *next;
-} list_str;
+} list_t;
 /**
  * struct passinfo - has function arguments that allow fuction prototype
  * of pointer struct
@@ -66,17 +66,44 @@ typedef struct liststr
  */
 typedef struct passinfo
 {
-	int status, argc, err_num, linecount_flag, env_changed, cmd_buf_type;
-	int readfd, histcount;
+	int status;
+	int argc;
+	int err_num;
+	int linecount_flag;
+	int env_changed;
+	int cmd_buf_type;
+	int histcount;
+	int readfd;
 	unsigned int line_count;
-	char *arg, **argv, *path, *fname, **environ, **cmd_buf;
+	char *arg;
+	char **argv;
+	char *path;
+	char *fname;
+	char **environ;
+	char **cmd_buf;
 	list_t *env;
 	list_t *history;
 	list_t *alias;
-} cnt;
-#define INFO_INIT
-{0, 0, 0, 0, 0, 0, 0, 0, 0,\
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+} info_t;
+#define INFO_INIT {\
+	0, /* status */ \
+	0,/* argc */ \
+	0,/* err_num */ \
+	0,/* linecount_flag */ \
+	0,/* env_changed */ \
+	0,/* cmd_buf_type */ \
+	0,/* histcount */ \
+	0,/* readfd */ \
+	0,/* line_count */ \
+	NULL,/* arg */ \
+	NULL,/* argv */ \
+	NULL,/* path */ \
+	NULL,/* fname */ \
+	NULL,/* environ */ \
+	NULL,/* cmd_buf */ \
+	NULL,/* env */ \
+	NULL,/* history */ \
+	NULL/* alias */ \
 }
 /**
  * struct builtin - structure containing strings and related function
@@ -86,12 +113,38 @@ typedef struct passinfo
 typedef struct builtin
 {
 	char *type;
-	int (*func)(cnt *);
-} builtin_tb;
-/*conv.c*/
-int is_shell_active(cnt *info);
-int delim_conf(char, char *);
-int alpha_conf(int);
-int convert(char *);
+	int (*func)(info_t *);
+} builtin_table;
+/*shell loop prototypes*/
+int hsh(info_t *, char **);
+int find_builtin(info_t *);
+void find_cmd(info_t *);
+void fork_cmd(info_t *);
+/*parser.c proto*/
+int is_cmd(info_t *, char *);
+char *dup_chars(char *, int, int);
+char *find_path(info_t *, char *, char *);
+/*atoi.c*/
+int interactive(info_t *);
+int is_delim(char, char *);
+int _isalpha(int);
+int _atoi(char *);
+/*environ.c*/
+char *_getenv(info_t *, const char *);
+int _myenv(info_t *);
+int _mysetenv(info_t *);
+int _myunsetenv(info_t *);
+int populate_env_list(info_t *);
+/*builtin.c prototypes*/
+int _myexit(info_t *);
+int _mycd(info_t *);
+int _myhelp(info_t *);
+/**builtin1.c*/
+int _myhistory(info_t *);
+int _myalias(info_t *);
+/*exits.c */
+char *_strncpy(char *, char *, int);
+char *_strncat(char *, char *, int);
+char *_strchr(char *, char);
+#endif /* _SHELL_H_ */
 
-#endif /* HEAD_H */
