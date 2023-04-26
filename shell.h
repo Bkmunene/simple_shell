@@ -140,4 +140,12 @@ int populate_env_list(info_t *);
 int _myexit(info_t *);
 int _mycd(info_t *);
 int _myhelp(info_t *);
+/**builtin1.c*/
+int _myhistory(info_t *);
+int _myalias(info_t *);
+/*exits.c */
+char *_strncpy(char *, char *, int);
+char *_strncat(char *, char *, int);
+char *_strchr(char *, char);
 #endif /* _SHELL_H_ */
+
