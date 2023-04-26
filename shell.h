@@ -39,8 +39,8 @@ extern char **environ;
  */
 typedef struct liststr
 {
-       	char *str;
-       	int num;
+	char *str;
+	int num;
 	struct liststr *next;
 } list_t;
 /**
@@ -74,7 +74,7 @@ typedef struct passinfo
 	int cmd_buf_type;
 	int histcount;
 	int readfd;
-       	unsigned int line_count;
+	unsigned int line_count;
 	char *arg;
 	char **argv;
 	char *path;
@@ -96,16 +96,15 @@ typedef struct passinfo
 	0,/* readfd */ \
 	0,/* line_count */ \
 	NULL,/* arg */ \
-       	NULL,/* argv */ \
-       	NULL,/* path */ \
-       	NULL,/* fname */ \
-       	NULL,/* environ */ \
-       	NULL,/* cmd_buf */ \
-       	NULL,/* env */ \
-       	NULL,/* history */ \
-       	NULL/* alias */ \
+	NULL,/* argv */ \
+	NULL,/* path */ \
+	NULL,/* fname */ \
+	NULL,/* environ */ \
+	NULL,/* cmd_buf */ \
+	NULL,/* env */ \
+	NULL,/* history */ \
+	NULL/* alias */ \
 }
-info_t my_info = INFO_INIT;
 /**
  * struct builtin - structure containing strings and related function
  * @func: related function

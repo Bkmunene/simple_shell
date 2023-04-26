@@ -4,42 +4,43 @@
  * @info: Structure containing arguments.
  *  Return: Always 0
  */
-int print_history_list(info_t *info)
+int _myhistory(info_t *info)
 {
 	if (info == NULL)
 	{
 		fprintf(stderr, "Error: info is NULL.\n");
-		return -1;
+		return (-1);
 	}
 	linked_list_t *history_list = info->history;
 
 	if (history_list == NULL)
 	{
 		fprintf(stderr, "Error: history list is NULL.\n");
-		return -1;
+		return (-1);
 	}
 
 	print_list(history_list);
 
-	return 0;
+	return (0);
 }
 /**
  * unset_alias - sets alias to string
  * @info: parameter struct
- * @str: the string alias
+ * @alias_name: the string alias
  * Return: Always 0
  */
 int unset_alias(info_t *info, char *alias_name)
 {
 	const char EQUAL_SIGN = '=';
-
 	char *equal_sign_position = _strchr(alias_name, EQUAL_SIGN);
+
 	if (equal_sign_position == NULL)
 	{
-		return 1;
+		return (1);
 	}
 
 	char original_character = *equal_sign_position;
+
 	*equal_sign_position = '\0';
 
 	int delete_result = delete_node_at_index(&(info->alias),
@@ -47,7 +48,7 @@ int unset_alias(info_t *info, char *alias_name)
 				node_starts_with(info->alias, alias_name, -1)));
 
 	equal_sign_position = original_character;
-	return (delete_result == 0) ? 0 : 1;
+	return ((delete_result == 0) ? 0 : 1);
 }
 /**
  * set_alias - sets alias to string
@@ -55,21 +56,17 @@ int unset_alias(info_t *info, char *alias_name)
  * @str: the string alias
  * Return: Always 0 on success
  */
-int print_alias(list_t *node)
+int set_alias(info_t *info, char *str)
 {
-    char *p = NULL, *a = NULL;
+	char *p;
 
-    if (node)
-    {
-        p = _strchr(node->str, '=');
-        for (a = node->str; a <= p; a++)
-            _putchar(*a);
-        _putchar('\'');
-        _puts(p + 1);
-        _puts("'\n");
-        return (0);
-    }
-    return (1);
+	p = _strchr(str, '=');
+	if (!p)
+		return (1);
+	if (!*++p)
+		return (unset_alias(info, str));
+	unset_alias(info, str);
+	return (add_node_end(&(info->alias), str, 0) == NULL);
 }
 /**
  * _myalias - copies the alias builtin
