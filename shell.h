@@ -125,7 +125,17 @@ void fork_cmd(info_t *);
 int is_cmd(info_t *, char *);
 char *dup_chars(char *, int, int);
 char *find_path(info_t *, char *, char *);
-
+/*atoi.c*/
+int interactive(info_t *);
+int is_delim(char, char *);
+int _isalpha(int);
+int _atoi(char *);
+/*environ.c*/
+char *_getenv(info_t *, const char *);
+int _myenv(info_t *);
+int _mysetenv(info_t *);
+int _myunsetenv(info_t *);
+int populate_env_list(info_t *);
 /*builtin.c prototypes*/
 int _myexit(info_t *);
 int _mycd(info_t *);
