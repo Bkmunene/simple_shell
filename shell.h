@@ -1,3 +1,11 @@
+<<<<<<< HEAD
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+void execmd(char **argv);
+=======
 #ifndef _SHELL_H_
 #define _SHELL_H_
 #include <stdio.h>
@@ -148,3 +156,4 @@ char *_strncat(char *, char *, int);
 char *_strchr(char *, char);
 #endif /* _SHELL_H_ */
 
+>>>>>>> master
