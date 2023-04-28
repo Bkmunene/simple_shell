@@ -1,132 +1,101 @@
-#include "shell.h"
+#include "main.h"
 /**
- * main - point of access to our code
- * @ac: number of argument
- * @argv: values in argument
- * Return: 0 when successfully executed and 1 when erratic
- */
-
-void print_prompt(const char *prompt);
-ssize_t read_input(char **line_ptr, size_t *n);
-char **tokenize_input(char *line_ptr, const char *delim, int *num_tokens);
-void free_tokens(char **tokens, int num_tokens);
-void execute_command(char **tokens);
-
-int main(int ac, char **argv)
+ * main - simple shell
+ * @argc: number of arguments
+ * @argv: value  of arguments
+ * @env: environment variable
+ * Return: 0
+*/
+int main(int argc, char *argv[], char **env)
 {
-	const char *prompt = "(ODIN $ )";
-	char *line_ptr = NULL;
-	size_t n = 0;
-	ssize_t n_value;
-	const char *delim = " \n";
-	int num_tokens = 0;
+	char *buff = NULL, *prompt = "(£)";
+	size_t buff_size = 0;
+	ssize_t bytes;
+	pid_t wpid;
+	int wstatus;
+	bool from_pipe = false;
+	struct stat statbuf;
 
-	(void)ac;
-	while (1)
-	{
-		print_prompt(prompt);
-		n_value = read_input(&line_ptr, &n);
-		if (n_value == -1)
-		{
-			printf("Exiting shell...\n");
-			return (-1);
-		}
-		argv = tokenize_input(line_ptr, delim, &num_tokens);
-		execute_command(argv);
-		free_tokens(argv, num_tokens);
-		free(line_ptr);
-		line_ptr = NULL;
-	}
-	return (0);
+	(void)argc;
+	(void)argv;
+while (1 && !from_pipe)
+{
+if (isatty(STDIN_FILENO) == 0)
+from_pipe = true;
+write(STDOUT_FILENO, prompt, 2);
+bytes = getline(&buff, &buff_size, stdin);
+if (bytes == -1)
+{
+perror("Fatal error (getline)");
+free(buff);
+exit(EXIT_FAILURE);
+}
+if (buff[bytes - 1] == '\n')
+buff[bytes - 1] = '\0';
+wpid = fork();
+if (wpid == -1)
+{
+perror("Fatal error (fork)");
+exit(EXIT_FAILURE);
+}
+if (wpid == 0)
+_execute(buff, &statbuf, env);
+if (waitpid(wpid, &wstatus, 0) == -1)
+{
+perror("Fatal error (wait)");
+exit(EXIT_FAILURE);
+}
+}
+free(buff);
+return (0);
 }
 /**
- * print_promp - prints prompter when shell is initialised
- * @prompt: the prompt to be printed
- * Return: void
- */
-void print_prompt(const char *prompt)
-{
-	printf("%s", prompt);
-}
-/**
- * read_input - reads what the user types
- * @line_ptr:  the line to be read
- * @n: size of line
+ * _execute - execute input files
+ * @ac: arguments
+ * @statbuf: checks for the status of the buffer
+ * @envp: environment param
  * Return: string
- */
-ssize_t read_input(char **line_ptr, size_t *n)
+*/
+int _execute(char *ac, struct stat *statbuf, char **envp)
 {
-	return (getline(line_ptr, n, stdin));
+int argc;
+char **argv;
+
+argv = split_string(ac, ' ', &argc);
+if (!check_file_status(argv[0], statbuf))
+{
+perror("fatal error (file status)");
+exit(EXIT_FAILURE);
+}
+execve(argv[0], argv, envp);
+perror("Fatal error (execve)");
+exit(EXIT_FAILURE);
 }
 /**
- * tokenize_input - converts the input into string
- * @line_ptr:line to be read from input
- * @delim: a delimeter
- * @num_tokens: size of the string
- * Return: string
- */
-char **tokenize_input(char *line_ptr, const char *delim, int *num_tokens)
+ * check_file_status - checks for file
+ * @path: shows  directory
+ * @statbuf: shows status of buffer
+ * Return: true or false
+*/
+bool check_file_status(char *path, struct stat *statbuf)
 {
-	char *line_ptr_copy, *token;
-	int i;
-	char **tokens;
+int stat_update;
 
-	line_ptr_copy = strdup(line_ptr);
-	if (line_ptr_copy == NULL)
-	{
-		perror("tsh: memory allocation error");
-		exit(-1);
-	}
-	token = strtok(line_ptr, delim);
-	while (token != NULL)
-	{
-		(*num_tokens)++;
-		token = strtok(NULL, delim);
-	}
-	(*num_tokens)++;
-	tokens = malloc(sizeof(char *) * (*num_tokens));
-	if (tokens == NULL)
-	{
-		perror("tsh: memory allocation error");
-		exit(-1);
-	}
-	token = strtok(line_ptr_copy, delim);
-	for (i = 0; token != NULL; i++)
-	{
-		tokens[i] = strdup(token);
-		if (tokens[i] == NULL)
-		{
-			perror("tsh: memory allocation error");
-			exit(-1);
-		}
-		token = strtok(NULL, delim);
-	}
-	tokens[i] = NULL;
-	free(line_ptr_copy);
-	return (tokens);
+stat_update = stat(path, statbuf);
+
+if (stat_update == 0)
+return (true);
+return (false);
 }
 /**
- * free_token - clears the memory
- * @tokens: pointer to memory
- * @num_tokens: size of memory
- * Return: void
+ * handle_error -  handles errors from the shell
+ * @pid: the process ID of the child process
  */
-void free_tokens(char **tokens, int num_tokens)
+void handle_error(pid_t pid)
 {
-	int i;
-
-	for (i = 0; i < num_tokens; i++)
-	{
-		free(tokens[i]);
-	}
-	free(tokens);
-}
-/**
- * execute_command - calls a command to execute function
- * @argv: argument
- */
-void execute_command(char **argv)
+if (pid == -1)
 {
-	execmd(argv);
+printf("error");
+exit(EXIT_FAILURE);
 }
-
+}
